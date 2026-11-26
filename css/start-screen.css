@@ -1,0 +1,83 @@
+/* start-screen.css - tela de início no mesmo visual da arena de boss (noite, montanhas, lima + roxo do Game Boy).
+ * Carregado depois de style.css; usa #startScreen.ss para vencer as regras antigas. Montada por js/menu.js + js/start-scene.js. */
+#startScreen.ss{ --lime:#a2f545; --lime-d:#2f6f0c; --gold:#ffd21f; --ink:#070b1f; --panel:rgba(8,12,30,.86); --edge:#7a4cf0;
+  justify-content:flex-start; align-items:center; gap:0; padding:0; overflow:hidden; background:#070b1f; font-family:"Courier New",monospace; }
+#startScreen.ss > *{ position:relative; z-index:1; }
+
+/* cenário */
+.ss-scene{ position:absolute !important; inset:0; z-index:0 !important; overflow:hidden; pointer-events:none; }
+.ss-scene > div{ position:absolute; left:0; right:0; }
+.ss-sky{ top:0; bottom:0; }
+.ss-orb{ top:9%; left:auto !important; right:12% !important; width:54px; height:54px; border-radius:50%; background:#e8ffd0; box-shadow:0 0 28px 10px rgba(190,255,140,.35); }
+.ss-far{ bottom:38%; height:17%; background-size:100% 100%; opacity:.9; }
+.ss-near{ bottom:33%; height:13%; background-size:100% 100%; }
+.ss-ground{ bottom:0; height:35%; border-top:3px solid #2c5a3a; }
+.ss-fly{ position:absolute; width:5px; height:5px; border-radius:50%; background:#d6ff6a; box-shadow:0 0 8px 3px rgba(190,255,70,.6); opacity:0; animation:ssFly 6s ease-in-out infinite; }
+@keyframes ssFly{ 0%{ opacity:0; transform:translate(0,0); } 25%,75%{ opacity:1; } 50%{ transform:translate(22px,-26px); } 100%{ opacity:0; transform:translate(-8px,-52px); } }
+
+/* herói x chefe, em cima do chão */
+.ss-duel{ position:absolute; left:0; right:0; bottom:calc(35% - 8px); height:150px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 9%; box-sizing:border-box; }
+.ss-hero canvas{ display:block; height:128px; width:auto; image-rendering:pixelated; animation:ssBob 2.2s ease-in-out infinite; transform-origin:50% 100%; }
+.ss-boss img{ display:block; height:auto; max-height:150px; image-rendering:auto; animation:ssBreath 2.6s ease-in-out infinite; transform-origin:50% 100%; }
+.ss-boss img.px{ image-rendering:pixelated; }
+@keyframes ssBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+@keyframes ssBreath{ 0%,100%{ transform:scale(1,1); } 50%{ transform:scale(1.03,.97); } }
+.ss-tag{ position:absolute !important; left:0; right:0; bottom:calc(35% - 30px); text-align:center; font:700 11px "Courier New",monospace; letter-spacing:1px; color:#c9f59a; text-shadow:1px 1px 0 #000; opacity:.9; }
+
+/* logo */
+.ss-logo{ margin-top:40px; text-align:center; line-height:1; }
+.ss-logo b{ display:block; font:900 62px "Courier New",monospace; letter-spacing:5px; color:var(--lime);
+  text-shadow:0 3px 0 var(--lime-d), 0 6px 0 #1b4207, 0 9px 0 #0c2203, 0 0 26px rgba(162,245,69,.45); animation:ssDrop .9s cubic-bezier(.3,1.5,.5,1) both; }
+.ss-logo span{ display:inline-block; margin-top:14px; padding:3px 12px; font:700 12px "Courier New",monospace; letter-spacing:3px; color:#fff; background:var(--edge); border:2px solid #cdb8ff; text-shadow:1px 1px 0 #2a0f6a; }
+@keyframes ssDrop{ 0%{ transform:translateY(-120px); opacity:0; } 100%{ transform:none; opacity:1; } }
+
+/* menu */
+.ss-menu{ margin-top:auto; margin-bottom:16px; width:316px; display:flex; flex-direction:column; gap:7px; }
+.ss-who{ align-self:center; margin-bottom:4px; padding:3px 12px; font:700 12px "Courier New",monospace; letter-spacing:1px; color:#fff; background:var(--panel); border:2px solid #4a5384; }
+#startScreen.ss .st-btn{ position:relative; width:100%; min-height:42px; padding:4px 16px 4px 38px; text-align:left; font:700 16px "Courier New",monospace; letter-spacing:1px; text-transform:uppercase; color:#eef1ff; text-shadow:2px 2px 0 #000;
+  background:var(--panel); border:3px solid #3b4478; border-radius:0; box-shadow:0 4px 0 #000; cursor:pointer; animation:none;
+  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px); }
+#startScreen.ss .st-btn::before{ content:'\25B6'; position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--gold); opacity:0; }
+#startScreen.ss .st-btn:hover, #startScreen.ss .st-btn:focus-visible{ color:var(--gold); border-color:var(--gold); outline:none; }
+#startScreen.ss .st-btn:hover::before, #startScreen.ss .st-btn:focus-visible::before{ opacity:1; }
+#startScreen.ss .st-btn:active{ transform:translateY(2px); box-shadow:0 2px 0 #000; }
+#startScreen.ss .st-play{ min-height:56px; font-size:22px; color:#0f2a03; text-shadow:none; background:linear-gradient(#9cf044,#58b014); border-color:#d6ff9a; }
+#startScreen.ss .st-play::before{ color:#0f2a03; opacity:1; animation:stBlink .9s steps(1) infinite; }
+#startScreen.ss .st-play:hover, #startScreen.ss .st-play:focus-visible{ color:#0f2a03; border-color:#fff; filter:brightness(1.08); }
+#startScreen.ss .st-hint{ position:static; margin-top:4px; text-align:center; font:12px "Courier New",monospace; color:#fff; opacity:.6; text-shadow:1px 1px 0 #000; }
+@media (prefers-reduced-motion:reduce){ .ss-logo b, .ss-hero canvas, .ss-boss img, .ss-fly{ animation:none !important; } .ss-fly{ opacity:.7; } }
+
+/* Abertura guarda-chuva / título, antes da tela inicial */
+#startScreen.ss .ss-intro{ position:absolute; inset:0; z-index:20; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:radial-gradient(ellipse at 50% 40%,#20375c 0%,#080d23 72%); opacity:0; visibility:hidden; pointer-events:none; }
+#startScreen.ss.ss-intro-active .ss-intro{ visibility:visible; animation:ssIntroFade 2.9s ease forwards; }
+.ss-umbrella{ position:relative; width:136px; height:125px; animation:ssUmbrellaDrop .85s cubic-bezier(.25,1.5,.55,1) both; }
+.ss-canopy{ position:absolute; left:8px; top:10px; width:120px; height:65px; background:linear-gradient(90deg,#a2f545 0 25%,#67c52b 25% 50%,#a2f545 50% 75%,#67c52b 75%); border:4px solid #d5ff9c; border-radius:100px 100px 12px 12px; clip-path:polygon(0 100%,0 50%,8% 25%,25% 5%,50% 0,75% 5%,92% 25%,100% 50%,100% 100%,75% 82%,50% 100%,25% 82%); box-shadow:0 0 22px #a2f54555; }
+.ss-handle{ position:absolute; left:65px; top:69px; width:6px; height:48px; border-radius:0 0 14px 14px; background:#e9f5d0; box-shadow:0 0 7px #fff; }
+.ss-handle:after{ content:''; position:absolute; bottom:-2px; left:-8px; width:18px; height:15px; border:5px solid #e9f5d0; border-top:0; border-radius:0 0 14px 14px; }
+.ss-rain{ position:absolute; width:3px; height:20px; background:#91c9ff; border-radius:4px; top:0; opacity:0; animation:ssRain .65s linear 1; }
+.ss-rain.r1{left:18px;animation-delay:.3s}.ss-rain.r2{left:115px;animation-delay:.45s}.ss-rain.r3{left:72px;animation-delay:.6s}
+.ss-intro-title{ font:900 44px "Courier New",monospace; letter-spacing:5px; color:#a2f545; text-shadow:0 4px 0 #28620b,0 8px 0 #102900,0 0 24px #a2f54566; animation:ssTitleReveal .65s .7s both; }
+.ss-intro-sub{font:700 12px "Courier New",monospace;letter-spacing:4px;color:#fff;animation:ssTitleReveal .55s 1s both}
+@keyframes ssIntroFade{0%,82%{opacity:1}100%{opacity:0;visibility:hidden}}
+@keyframes ssUmbrellaDrop{0%{transform:translateY(-160px) rotate(-18deg);opacity:0}65%{transform:translateY(8px) rotate(8deg);opacity:1}100%{transform:translateY(0) rotate(0)}}
+@keyframes ssTitleReveal{0%{transform:scale(.65);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes ssRain{0%{transform:translateY(-12px);opacity:0}20%{opacity:.9}100%{transform:translateY(85px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.ss-umbrella,.ss-intro-title,.ss-intro-sub,.ss-rain{animation:none!important}}
+/* Opening revision: umbrella/frog drop is intentionally longer and visible. */
+#startScreen.ss.ss-intro-active .ss-intro{visibility:visible;opacity:1;animation:ssIntroFade 4.2s ease forwards;}
+#startScreen.ss .ss-umbrella{width:156px;height:145px;animation:ssUmbrellaDrop 1.15s cubic-bezier(.25,1.5,.55,1) both;}
+#startScreen.ss .ss-intro-title{font-size:clamp(38px,9vw,64px);animation:ssTitleReveal .8s 1s both;}
+#startScreen.ss .ss-intro-sub{font-size:15px;animation:ssTitleReveal .7s 1.35s both;}
+@keyframes ssIntroFade{0%,88%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden}}
+@keyframes ssUmbrellaDrop{0%{transform:translateY(-220px) rotate(-25deg);opacity:0}65%{transform:translateY(12px) rotate(10deg);opacity:1}100%{transform:translateY(0) rotate(0)}}
+/* Intro + skippable auto demo */
+#startScreen.ss .ss-intro-drop{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:190px;}
+#startScreen.ss .ss-intro-frog{position:absolute;width:90px;height:145px;image-rendering:pixelated;animation:ssFrogDrop 1.2s cubic-bezier(.25,1.5,.55,1) both;z-index:2;}
+#startScreen.ss .ss-umbrella{transform:translateY(-40px);}
+@keyframes ssFrogDrop{0%{transform:translateY(-260px);opacity:0}70%{transform:translateY(15px);opacity:1}100%{transform:translateY(0);opacity:1}}
+#startScreen.ss .ss-demo{display:none;position:absolute;inset:0;align-items:center;justify-content:center;background:linear-gradient(#132c50,#07101e);overflow:hidden;}
+#startScreen.ss .ss-demo-road{position:absolute;left:8%;right:8%;top:30%;height:42%;background:repeating-linear-gradient(180deg,#273447 0 38px,#3b4a5c 38px 43px);border:3px solid #8fa3bd;box-shadow:0 0 18px #000;}
+#startScreen.ss .ss-demo-road i{position:absolute;left:0;right:0;border-top:2px dashed #d7e4ef;top:25%;top:25%;}.ss-demo-road i:nth-child(2){top:50%}.ss-demo-road i:nth-child(3){top:75%}
+#startScreen.ss .ss-demo-frog{position:absolute;left:12%;bottom:17%;height:110px;width:auto;image-rendering:pixelated;animation:ssDemoHop 6s ease-in-out infinite;z-index:2;}
+@keyframes ssDemoHop{0%,10%{left:12%;bottom:17%}20%{left:24%;bottom:35%}30%{left:36%;bottom:17%}40%{left:48%;bottom:35%}50%{left:60%;bottom:17%}60%{left:72%;bottom:35%}70%,100%{left:84%;bottom:17%}}
+#startScreen.ss .ss-demo-label{position:absolute;top:14%;font:bold 20px 'Courier New',monospace;color:#a2f545;text-shadow:3px 3px #000;letter-spacing:3px;}

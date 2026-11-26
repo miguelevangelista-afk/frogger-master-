@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#5cb811">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <title>Frogger</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/boss-arena.css">
+    <link rel="stylesheet" href="css/start-screen.css">
+</head>
+<body>
+    <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden">
+        <filter id="gbPalette4">
+            <feColorMatrix type="saturate" values="0" result="gray" />
+            <feComponentTransfer in="gray">
+                <feFuncR type="discrete" tableValues="0.05 0.13 0.23 0.34" />
+                <feFuncG type="discrete" tableValues="0.15 0.34 0.55 0.78" />
+                <feFuncB type="discrete" tableValues="0.08 0.18 0.29 0.43" />
+            </feComponentTransfer>
+        </filter>
+    </svg>
+    <div id="container">
+        <div id="game"></div>
+        <div id="controls">
+            <div id="profileName" class="profile-name" onclick="profile.open();" title="Player profile"></div>
+            <div id="levelBox">
+                <span id="levelText">Level 1</span>
+                <div id="xpBar"><div id="xpFill"></div></div>
+                <span id="xpText">0 / 24 XP</span>
+            </div>
+            <div id="bossHint"></div>
+            <button type="button" id="changePlayer" onclick="selectPlayer();">Change Player</button>
+            <div id='score'>Score 0</div>
+            <div id='lives'></div>
+            <div id='coins'>Coins 0</div>
+            <div id='gems'>Gems 0</div>
+            <div id='ticketsHud'>Tickets 0</div>
+            <div class="menu-buttons">
+                <button type="button" id="openMenu" onclick="gameMenu.toggle();">☰ Menu</button>
+            </div>
+
+            <!-- Painel de Música com Carregamento de Pasta Inteira -->
+            <section id="musicPanel" aria-label="Music playlist" hidden>
+                <div class="music-head">
+                    <strong>Minha Playlist Local</strong>
+                    <button type="button" onclick="toggleMusic()">Close</button>
+                </div>
+                <div style="padding: 15px; text-align: center;">
+                    <p id="nowPlaying" style="font-size: 13px; margin-bottom: 10px; color: #fff;">Nenhuma música selecionada</p>
+                    
+                    <!-- Player de Áudio Nativo -->
+                    <audio id="gameAudio" controls style="width: 100%; max-width: 250px; margin-bottom: 10px;" onended="nextTrack()">
+                        Seu navegador não suporta áudio.
+                    </audio>
+
+                    <!-- Seleção da pasta / múltiplos arquivos de uma só vez -->
+                    <div style="margin-bottom: 10px;">
+                        <label for="folderInput" style="display: inline-block; background-color: #5cb811; color: white; padding: 8px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">
+                            Selecionar Pasta de Músicas
+                        </label>
+                        <input type="file" id="folderInput" webkitdirectory directory multiple accept="audio/*" style="display: none;" onchange="loadMusicFolder(event)">
+                    </div>
+
+                    <div>
+                        <button type="button" onclick="nextTrack()" style="background: #333; color: white; border: 1px solid #5cb811; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">Próxima Música ⏭</button>
+                    </div>
+                </div>
+            </section>
+            
+            <div id='effects'></div>
+        </div>
+        <div id="dpad">
+            <button type="button" class="dp" id="dpUp" data-dir="up" aria-label="Up"><img src="images/arrow-up.png" alt=""></button>
+            <button type="button" class="dp" id="dpLeft" data-dir="left" aria-label="Left"><img src="images/arrow-left.png" alt=""></button>
+            <button type="button" class="dp" id="dpDown" data-dir="down" aria-label="Down"><img src="images/arrow-down.png" alt=""></button>
+            <button type="button" class="dp" id="dpRight" data-dir="right" aria-label="Right"><img src="images/arrow-right.png" alt=""></button>
+        </div>
+        <script>
+            // Se algum script falhar, mostra o erro na tela (toque para fechar) em vez de o jogo parecer "travado".
+            window.__errs = [];
+            // Arquivo que nao carregou (servidor local engasgado): mostra qual foi e recarrega 1 vez sozinho.
+            window.addEventListener('error', function(e) {
+                var t = e.target;
+                if (t && (t.tagName === 'SCRIPT' || t.tagName === 'IMG') && (t.src || '')) {
+                    window.__errs.push('Falhou ao carregar ' + String(t.src).split('/').slice(-2).join('/'));
+                }
+            }, true);
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    var ok = typeof player !== 'undefined' && typeof allEnemies !== 'undefined';
+                    try {
+                        if (ok) { sessionStorage.removeItem('fgRetry'); }
+                        else if (!sessionStorage.getItem('fgRetry')) { sessionStorage.setItem('fgRetry', '1'); location.reload(); }
+                    } catch (x) {}
+                }, 1200);
+            });
+            window.addEventListener('error', function(e) {
+                try {
+                    var msg = (e.message || 'error') + ' (' + String(e.filename || '').split('/').pop() + ':' + (e.lineno || '?') + ')';
+                    window.__errs.push(msg);
+                    var box = document.getElementById('errBox');
+                    if (!box) {
+                        box = document.createElement('div');
+                        box.id = 'errBox';
+                        box.style.cssText = 'position:fixed;left:6px;right:6px;top:6px;z-index:99999;background:#7a1010;color:#fff;font:12px Arial;padding:6px 8px;border:2px solid #ff8a8a;border-radius:6px;max-height:30vh;overflow:auto';
+                        box.onclick = function() { box.remove(); };
+                        document.body.appendChild(box);
+                    }
+                    box.textContent = '\u26A0 ' + window.__errs.slice(0, 3).join('  |  ') + '  (tap to close)';
+                } catch (x) {}
+            });
+        </script>
+        <script src="js/config.js"></script>
+        <script src="js/input.js"></script>
+        <script src="js/core/pool.js"></script>
+        <script src="js/core/animator.js"></script>
+        <script src="js/profile.js"></script>
+        <script src="js/resources.js"></script>
+        <script src="js/maps.js"></script>
+        <script src="js/engine.js"></script>
+        <script src="js/enemies.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/lootbox.js"></script>
+        <script src="js/shop.js"></script>
+        <script src="js/gems.js"></script>
+        <script src="js/tickets.js"></script>
+        <script src="js/boxes.js"></script>
+        <script src="js/start-scene.js"></script>
+        <script src="js/menu.js"></script>
+        <script src="js/wardrobe.js"></script>
+        <script src="js/rewards.js"></script>
+        <script src="js/curse.js"></script>
+        <script src="js/slot.js"></script>
+        <script src="js/mouse.js"></script>
+        <script src="js/level.js"></script>
+        <script src="js/combo.js"></script>
+        <script src="js/pickups.js"></script>
+        <script src="js/boss.js"></script>
+        <script src="js/gameover.js"></script>
+        <script src="js/fx.js"></script>
+        <script src="js/equalizer.js"></script>
+        <script src="js/online-music.js"></script>
+        <script src="js/sfx.js"></script>
+        <script src="js/items.js"></script>
+        <script src="js/fightfx.js"></script>
+        <script src="js/boss-arena.js"></script>
+        <script src="js/savedata.js"></script>
+        <script src="js/codes.js"></script>
+        <script src="js/gba.js"></script>
+        <script>
+            var SAVE_KEY = 'frogger-progress-v1';
+            function saveGame() {
+                try {
+                    localStorage.setItem(SAVE_KEY, JSON.stringify({
+                        x: player.x, y: player.y, score: player.score, won: player.won,
+                        shield: player.shield, slowTime: player.slowTime, freezeTime: player.freezeTime,
+                        savedAt: Date.now()
+                    }));
+                    var el = document.getElementById('effects');
+                    if (el) el.textContent = 'Progress saved!';
+                } catch(e) { alert('Saving is unavailable in this browser mode.'); }
+            }
+            function continueGame() {
+                try {
+                    var s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+                    if (!s) { alert('No saved game yet. Tap Save first.'); return; }
+                    if (window.gameEnd && gameEnd.isOver()) { gameEnd.restart(); }
+                    player.x = s.x; player.y = s.y; player.score = s.score || 0;
+                    player.won = Array.isArray(s.won) ? s.won : [];
+                    player.shield = s.shield || 0; player.slowTime = s.slowTime || 0; player.freezeTime = s.freezeTime || 0;
+                    var el = document.getElementById('effects');
+                    if (el) el.textContent = 'Progress restored!';
+                } catch(e) { alert('Could not load saved progress.'); }
+            }
+
+            // ---- Sistema de Leitura de Pasta de Músicas Automático ----
+            var localPlaylist = [];
+            var currentTrackIndex = 0;
+
+            function loadMusicFolder(event) {
+                var files = Array.from(event.target.files);
+                // Filtra apenas arquivos de áudio (.mp3, .wav, .ogg, .m4a, etc)
+                localPlaylist = files.filter(function(file) {
+                    return file.type.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac)$/i.test(file.name);
+                });
+
+                if (localPlaylist.length === 0) {
+                    alert('Nenhuma música encontrada nessa pasta!');
+                    return;
+                }
+
+                currentTrackIndex = 0;
+                playCurrentTrack();
+            }
+
+            function playCurrentTrack() {
+                if (localPlaylist.length === 0) return;
+                
+                var file = localPlaylist[currentTrackIndex];
+                var audio = document.getElementById('gameAudio');
+                var nowPlaying = document.getElementById('nowPlaying');
+
+                // Cria uma URL temporária do arquivo selecionado sem precisar fazer upload
+                audio.src = URL.createObjectURL(file);
+                nowPlaying.textContent = "Tocando (" + (currentTrackIndex + 1) + "/" + localPlaylist.length + "): " + file.name;
+                audio.play().catch(function() {});
+            }
+
+            function nextTrack() {
+                if (localPlaylist.length === 0) return;
+                currentTrackIndex = (currentTrackIndex + 1) % localPlaylist.length;
+                playCurrentTrack();
+            }
+
+            function toggleMusic() {
+                var panel = document.getElementById('musicPanel');
+                panel.hidden = !panel.hidden;
+            }
+        </script>
+        <script>
+            // Controls
+            Array.prototype.forEach.call(document.querySelectorAll('#dpad .dp'), function(b) {
+                b.addEventListener('pointerdown', function(e) {
+                    e.preventDefault();
+                    if (typeof player !== 'undefined' && player && typeof player.handleInput === 'function') {
+                        player.handleInput(b.getAttribute('data-dir'));
+                    }
+                });
+                b.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+            });
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function(r) { r.update(); }).catch(function() {});
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>
+

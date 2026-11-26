@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <!-- Os arquivos do slot (JS, CSS, imagens, sons) vêm do GitHub Pages do autor.
+       Por causa deste <base>, links relativos apontam para lá: use URL completa para voltar ao Frogger. -->
+  <base href="https://n1md7.github.io/mini-slot/" />
+
+  <meta charset="UTF-8" />
+  <meta content="#000000" name="theme-color" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+  <title>Lucky Spin | 🎰</title>
+  <link rel="icon" href="vite.svg" type="image/svg+xml" />
+
+  <script type="module" crossorigin src="https://n1md7.github.io/mini-slot/index-09dc5788.js"></script>
+  <link rel="stylesheet" href="https://n1md7.github.io/mini-slot/index-754a9bb9.css">
+</head>
+
+<body>
+  <a id="backToFrogger" href="#"
+     style="position:fixed;top:8px;left:8px;z-index:9999;padding:6px 12px;background:#5cb811;color:#fff;font:bold 14px Arial;border-radius:4px;text-decoration:none;">
+    🐸 Voltar ao Frogger
+  </a>
+
+  <div id="menu"></div>
+  <div id="app">
+    <div id="screen"></div>
+    <canvas id="slot"></canvas>
+    <div id="controls"></div>
+  </div>
+
+  <p style="position:fixed;bottom:4px;right:8px;margin:0;font:12px Arial;color:#888;">
+    Lucky Spin por <a href="https://github.com/n1md7/mini-slot" style="color:#aaa">n1md7</a>
+  </p>
+
+  <script>
+    // /game/ -> raiz do site (funciona também se o site estiver em uma subpasta)
+    document.getElementById('backToFrogger').href =
+      location.origin + location.pathname.replace(/game\/(index\.html)?$/, '');
+  </script>
+</body>
+
+</html>

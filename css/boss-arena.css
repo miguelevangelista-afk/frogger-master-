@@ -1,0 +1,226 @@
+/* boss-arena.css - visual da luta de boss: cenário, nome, barras de vida e efeitos.
+ * As cores de cada boss vêm de js/boss-arena.js (variáveis --acc --acc2 --hp1 --hp2 --g1 --g2). */
+#bossOverlay{ --acc:#7bd67b; --acc2:#254b24; --hp1:#ff5a4a; --hp2:#b81d1d; --g1:#2a3a2a; --g2:#101810; }
+#bossOverlay .bf-box{ position:relative; padding:0; gap:0; overflow:hidden; background:#000; border:3px solid var(--acc); border-radius:12px; box-shadow:0 0 0 2px #000, 0 0 22px var(--acc2); }
+#bossOverlay .bf-title{ display:none; }
+#bossOverlay .bf-stage{ height:min(64vh,400px); margin:0; border-radius:0; background:#000; align-items:flex-end; padding-bottom:17%; box-sizing:border-box; touch-action:none; -webkit-user-select:none; user-select:none; }
+#gbaShell .gba-screen #bossOverlay .bf-box{ height:100%; max-height:100%; padding:0; border-width:2px; border-radius:6px; }
+#gbaShell .gba-screen #bossOverlay .bf-stage{ height:100%; margin:0; flex:1; }
+#gbaShell .gba-screen #bossOverlay #bfBoss img{ max-width:90%; max-height:100%; }
+#bossOverlay .bf-sprite{ position:relative; z-index:2; transform-origin:50% 100%; }
+
+/* cenário */
+.ba-arena{ position:absolute; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.ba-arena > div{ position:absolute; left:0; right:0; }
+.ba-sky{ top:0; bottom:0; transition:filter .3s; }
+.ba-orb{ border-radius:50%; width:var(--s); height:var(--s); left:var(--x); top:var(--y); right:auto; background:var(--c); box-shadow:0 0 28px 10px var(--c); opacity:.9; animation:baOrb 6s ease-in-out infinite alternate; }
+.ba-far, .ba-near{ background-repeat:repeat-x; background-size:300px 100%; background-position:0 100%; }
+.ba-far{ bottom:24%; height:34%; animation:baPan 70s linear infinite; }
+.ba-near{ bottom:22%; height:24%; animation:baPan 38s linear infinite reverse; }
+.ba-ground{ bottom:0; height:25%; background:linear-gradient(180deg,var(--g1),var(--g2)); border-top:2px solid var(--acc2); }
+.ba-ground::after{ content:''; position:absolute; inset:0; background:repeating-linear-gradient(180deg,rgba(255,255,255,.07) 0 2px,transparent 2px 9px); }
+.ba-shadow{ bottom:12%; left:50% !important; right:auto !important; width:46%; height:9%; margin-left:-23%; background:radial-gradient(ellipse,rgba(0,0,0,.6),transparent 70%); }
+.ba-fxl{ top:0; bottom:0; }
+.ba-p{ position:absolute; left:var(--x); width:var(--z); height:var(--z); background:var(--c); border-radius:50%; box-shadow:0 0 6px var(--c); opacity:0; animation:var(--a) var(--d) linear var(--w) infinite; }
+.ba-p.leaf{ border-radius:60% 0; box-shadow:none; }
+.ba-p.snow{ box-shadow:none; }
+@keyframes baPan{ to{ background-position:-300px 100%; } }
+@keyframes baOrb{ from{ transform:translateY(0); } to{ transform:translateY(5px); } }
+@keyframes baRise{ 0%{ transform:translate(0,0); opacity:0; } 15%{ opacity:.9; } 100%{ transform:translate(var(--dx),-330px); opacity:0; } }
+@keyframes baFall{ 0%{ transform:translate(0,0) rotate(0); opacity:0; } 10%{ opacity:.95; } 100%{ transform:translate(var(--dx),380px) rotate(360deg); opacity:0; } }
+@keyframes baBlink{ 0%,100%{ opacity:0; transform:translate(0,0); } 50%{ opacity:1; transform:translate(var(--dx),-12px); } }
+@keyframes baDrift{ 0%{ transform:translateX(-30px); opacity:0; } 25%{ opacity:.55; } 100%{ transform:translateX(var(--dx)); opacity:0; } }
+
+/* nome + vida do boss (topo) e vida do jogador (base) */
+.ba-hud{ position:absolute; z-index:6; left:0; right:0; top:0; padding:6px 8px 8px; pointer-events:none; background:linear-gradient(180deg,rgba(0,0,0,.72),transparent); }
+.ba-plate{ display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+.ba-lv{ flex:none; min-width:32px; padding:3px 5px; text-align:center; font:900 11px/1 "Courier New",monospace; color:#1a1208; background:linear-gradient(180deg,#fff0a8,var(--acc)); border:2px solid #000; border-radius:6px; box-shadow:0 2px 0 rgba(0,0,0,.5); }
+.ba-name{ display:block; font:900 17px/1 "Courier New",monospace; letter-spacing:1px; text-transform:uppercase; color:#fff; text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 3px 0 var(--acc2); }
+.ba-epi{ display:block; margin-top:3px; font:700 9px/1 "Courier New",monospace; letter-spacing:2px; color:var(--acc); text-shadow:1px 1px 0 #000; }
+.ba-hud .bf-bar, .ba-me .bf-bar{ position:relative; border:2px solid #000; border-radius:9px; background:#12080c; box-shadow:0 0 0 1px var(--acc), inset 0 2px 4px rgba(0,0,0,.8); overflow:hidden; }
+.ba-hud .bf-bar{ height:17px !important; margin:0 !important; }
+.ba-hud .bf-fill, .ba-me .bf-fill{ position:relative; z-index:1; border-radius:7px; }
+.ba-hud .bf-fill{ background:linear-gradient(180deg,rgba(255,255,255,.45) 0 22%,transparent 24%),linear-gradient(90deg,var(--hp2),var(--hp1)); }
+.ba-ghost{ position:absolute; left:0; top:0; bottom:0; width:100%; background:#ffe08a; opacity:.9; transition:width .5s ease-out; z-index:0; }
+.ba-hud .bf-bar::after, .ba-me .bf-bar::after{ content:''; position:absolute; inset:0; z-index:2; pointer-events:none; background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 2px),rgba(0,0,0,.5) calc(10% - 2px) 10%); }
+.ba-num{ position:absolute; z-index:3; inset:0; display:flex; align-items:center; justify-content:center; font:900 10px/1 "Courier New",monospace; color:#fff; text-shadow:1px 1px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000; }
+.ba-me{ position:absolute; z-index:6; left:8px; bottom:8px; width:66%; display:flex; align-items:center; gap:6px; pointer-events:none; }
+.ba-heart{ font-size:20px; line-height:1; color:#ff4d6a; filter:drop-shadow(0 2px 0 #000); animation:baBeat 1s ease-in-out infinite; }
+.ba-me .bf-bar{ flex:1; height:14px !important; margin:0 !important; background:#0c1a0c; box-shadow:0 0 0 1px #8ee08e, inset 0 2px 4px rgba(0,0,0,.8); }
+.ba-me .bf-fill{ background:linear-gradient(180deg,rgba(255,255,255,.45) 0 22%,transparent 24%),linear-gradient(90deg,#1f9d2a,#7be84a); }
+.ba-me.low .bf-fill{ background:linear-gradient(180deg,rgba(255,255,255,.4) 0 22%,transparent 24%),linear-gradient(90deg,#a81818,#ff5a4a); }
+.ba-me.low .ba-heart{ animation-duration:.4s; }
+@keyframes baBeat{ 50%{ transform:scale(1.22); } }
+
+/* textos de feedback, dano, aviso */
+.ba-toast{ position:absolute; z-index:7; left:50%; top:36%; transform:translateX(-50%); max-width:92%; text-align:center; font:900 18px/1.2 "Courier New",monospace; letter-spacing:1px; color:#fff; text-shadow:-2px 0 #000,2px 0 #000,0 -2px #000,0 2px #000; opacity:0; pointer-events:none; }
+.ba-toast small{ display:block; margin-top:6px; font-size:10px; letter-spacing:2px; animation:baBlink2 1s steps(1) infinite; }
+.ba-toast.good{ color:#8ff0ff; } .ba-toast.gold{ color:#ffd966; } .ba-toast.bad{ color:#ff7a6a; }
+.ba-toast.show{ animation:baToast 1s ease-out both; }
+.ba-toast.keep{ animation:baToastKeep .3s ease-out both; }
+@keyframes baToast{ 0%{ opacity:0; transform:translate(-50%,10px) scale(.7); } 15%{ opacity:1; transform:translate(-50%,0) scale(1.12); } 70%{ opacity:1; } 100%{ opacity:0; transform:translate(-50%,-18px) scale(1); } }
+@keyframes baToastKeep{ from{ opacity:0; transform:translate(-50%,10px) scale(.7); } to{ opacity:1; transform:translate(-50%,0) scale(1); } }
+@keyframes baBlink2{ 50%{ opacity:.2; } }
+#bossOverlay .bf-dmg{ z-index:5; top:30%; font:900 30px "Courier New",monospace; text-shadow:-2px 0 #000,2px 0 #000,0 -2px #000,0 2px #000; }
+#bossOverlay .bf-warn{ z-index:5; top:64px; right:12px; font-size:48px; text-shadow:0 0 10px #f00,0 0 2px #000; }
+.ba-hint{ position:absolute; z-index:7; left:0; right:0; bottom:34px; text-align:center; font:700 10px/1.3 "Courier New",monospace; letter-spacing:1px; color:#fff; text-shadow:1px 1px 0 #000; opacity:0; pointer-events:none; }
+.ba-hint.show{ animation:baHint 4s 1.6s both; }
+@keyframes baHint{ 0%,100%{ opacity:0; } 10%,80%{ opacity:.95; } }
+.ba-flee{ position:absolute; z-index:8; right:7px; bottom:7px; width:28px; height:28px; border-radius:50%; border:2px solid rgba(255,255,255,.35); background:rgba(0,0,0,.5); color:#fff; font:900 12px/1 Arial; opacity:.65; cursor:pointer; touch-action:manipulation; }
+
+/* atmosfera: aviso de ataque, golpe, dano, fúria, abertura de cena */
+.ba-vig{ position:absolute; inset:0; z-index:4; pointer-events:none; }
+.ba-wind .ba-vig{ animation:baVig .3s ease-in-out infinite alternate; }
+.ba-wind .ba-sky{ filter:brightness(.6) saturate(1.5); }
+.ba-rage .ba-sky{ filter:hue-rotate(-18deg) saturate(1.7) brightness(.85); }
+.ba-rage .ba-orb{ animation-duration:1.2s; }
+.ba-hit .ba-vig{ animation:none; box-shadow:inset 0 0 80px 30px rgba(255,0,0,.85); }
+.ba-flash .ba-vig{ animation:none; background:rgba(255,255,255,.25); }
+.ba-flash.ba-crit .ba-vig{ background:rgba(255,214,90,.45); }
+@keyframes baVig{ from{ box-shadow:inset 0 0 40px 4px rgba(255,40,20,.25); } to{ box-shadow:inset 0 0 70px 16px rgba(255,40,20,.7); } }
+.bf-stage::before, .bf-stage::after{ content:''; position:absolute; left:0; right:0; height:0; background:#000; z-index:9; pointer-events:none; }
+.bf-stage::before{ top:0; } .bf-stage::after{ bottom:0; }
+.ba-intro .bf-stage::before, .ba-intro .bf-stage::after{ animation:baBars 1.5s ease-in-out both; }
+.ba-intro .ba-hud{ animation:baHudIn .7s .35s both; }
+@keyframes baBars{ 0%{ height:50%; } 30%{ height:12%; } 80%{ height:12%; } 100%{ height:0; } }
+@keyframes baHudIn{ from{ transform:translateY(-120%); } }
+
+/* cada padrão de ataque se anuncia de um jeito */
+#bossOverlay[data-pat=heavy] .bf-sprite.wind{ animation:baLunge 1s ease-in forwards; }
+#bossOverlay[data-pat=rapid] .bf-sprite.wind{ animation:baJit .12s steps(2) infinite; }
+#bossOverlay[data-pat=double] .bf-sprite.wind{ animation:baPulse .5s ease-in-out 2; }
+#bossOverlay[data-pat=triple] .bf-sprite.wind{ animation:baPulse .33s ease-in-out 3; }
+#bossOverlay .bf-sprite:not(.wind):not(.shake):not(.bf-enter):not(.bf-phase-two){ animation:baIdle 2.6s ease-in-out infinite; }
+@keyframes baLunge{ 0%{ transform:scale(1); } 70%{ transform:scale(1.22) translateY(-8px); } 100%{ transform:scale(1.3) translateY(-10px); } }
+@keyframes baJit{ from{ transform:translateX(-5px); } to{ transform:translateX(5px); } }
+@keyframes baPulse{ 50%{ transform:scale(1.15) translateY(-5px); } }
+@keyframes baIdle{ 50%{ transform:translateY(-3px) scale(1.012); } }
+@media (prefers-reduced-motion:reduce){ .ba-p, .ba-far, .ba-near, .ba-orb, .ba-heart, #bossOverlay .bf-sprite{ animation:none !important; } }
+
+/* ---- adaptação a qualquer tela (--u = escala, --k = escala do boss, --hh = altura do HUD; calculadas em boss-arena.js) ---- */
+#bossOverlay{ --u:1; --k:1; --hh:64px; }
+#bossOverlay #bfClose{ display:none !important; }   /* o botão antigo; o ✕ pequeno chama ele por dentro */
+#bossOverlay #bfBoss{ zoom:var(--k); }
+.ba-hud{ padding:calc(6px*var(--u)) calc(8px*var(--u)) calc(8px*var(--u)); }
+.ba-plate{ gap:calc(7px*var(--u)); margin-bottom:calc(5px*var(--u)); text-align:left; }
+.ba-plate > div{ min-width:0; text-align:left; }
+.ba-lv{ font-size:calc(11px*var(--u)); min-width:calc(32px*var(--u)); }
+.ba-name{ font-size:calc(17px*var(--u)); white-space:nowrap; }
+.ba-epi{ font-size:calc(9px*var(--u)); letter-spacing:calc(2px*var(--u)); white-space:nowrap; }
+.ba-compact .ba-epi{ display:none; }
+.ba-hud .bf-bar{ height:calc(17px*var(--u)) !important; }
+.ba-me .bf-bar{ height:calc(14px*var(--u)) !important; }
+.ba-num{ font-size:calc(10px*var(--u)); }
+.ba-heart{ font-size:calc(20px*var(--u)); }
+.ba-me{ left:calc(8px*var(--u)); bottom:calc(8px*var(--u)); }
+.ba-flee{ width:calc(28px*var(--u)); height:calc(28px*var(--u)); right:calc(7px*var(--u)); bottom:calc(7px*var(--u)); }
+.ba-toast{ font-size:calc(18px*var(--u)); }
+.ba-hint{ font-size:calc(10px*var(--u)); bottom:calc(34px*var(--u)); }
+#bossOverlay .bf-dmg{ font-size:calc(30px*var(--u)); }
+#bossOverlay .bf-warn{ top:calc(var(--hh) + 4px); right:calc(12px*var(--u)); font-size:calc(46px*var(--u)); }
+
+/* ---- combate: jogador, aviso de ataque, golpe do boss, esquiva ---- */
+#bossOverlay .bf-stage{ justify-content:flex-end; padding-right:7%; }
+.ba-bw{ position:relative; z-index:2; display:flex; align-items:flex-end; }
+.ba-wind .ba-bw{ filter:drop-shadow(0 0 10px rgba(255,60,40,.9)); }
+#bossOverlay .ba-bw .bf-warn{ top:-0.95em; right:auto; left:calc(50% - .2em); }
+.ba-hero{ position:absolute; z-index:2; left:8%; bottom:calc(17% - var(--hs,90px)*.15); pointer-events:none; --hs:90px; }
+#bossOverlay .ba-hero{ --hs:inherit; }
+.ba-hero canvas{ display:block; height:var(--hs); width:auto; transform-origin:50% 100%; animation:baIdle2 2.2s ease-in-out infinite; }
+.ba-hero::after{ content:''; position:absolute; left:8%; right:8%; bottom:calc(var(--hs)*.1); height:calc(var(--hs)*.1); background:radial-gradient(ellipse,rgba(0,0,0,.5),transparent 70%); z-index:-1; }
+.ba-hero.alert canvas{ filter:drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px var(--acc)); }
+.ba-hero.alert::before{ content:'DODGE!'; position:absolute; top:-1.6em; left:50%; transform:translateX(-50%); font:900 calc(11px*var(--u)) "Courier New",monospace; color:#fff; text-shadow:-1px 0 #000,1px 0 #000,0 -1px #000,0 1px #000; white-space:nowrap; }
+.ba-ring{ position:absolute; left:50%; bottom:calc(var(--hs)*.1); width:calc(var(--hs)*.5); height:calc(var(--hs)*.2); margin-left:calc(var(--hs)*-.25); border:3px solid #8ff0ff; border-radius:50%; opacity:0; }
+.ba-hero.perfect .ba-ring{ border-color:#ffd966; box-shadow:0 0 14px #ffd966; }
+.ba-hero.h-dodge .ba-ring{ animation:baRing .5s ease-out; }
+.ba-hero.h-atk{ animation:baHeroAtk .22s ease-out; }
+.ba-hero.h-atk.h-crit{ animation-name:baHeroCrit; filter:drop-shadow(0 0 5px #ffd966) brightness(1.12); }
+.ba-hero.h-dodge{ animation:baHeroDodge .5s ease-out; }
+.ba-hero.h-hurt{ animation:baHeroHurt .45s ease-out; }
+.ba-hero.h-dead{ animation:baHeroDead .8s ease-in both; }
+.ba-hero.h-win{ animation:baHeroWin .45s ease-in-out infinite alternate; }
+.ba-intro .ba-hero{ animation:baHeroIn .8s .3s both; }
+@keyframes baIdle2{ 50%{ transform:translateY(-2px) scaleY(1.02); } }
+@keyframes baHeroIn{ from{ transform:translateX(-160%); } }
+@keyframes baHeroAtk{ 0%,100%{ transform:translateX(0); } 35%{ transform:translateY(-3%) scale(1.03); } 65%{ transform:translateY(1%) scale(.98); } }
+@keyframes baHeroCrit{ 0%,100%{ transform:translateX(0); } 35%{ transform:translateY(-4%) scale(1.06); } 65%{ transform:translateY(1%) scale(.97); } }
+@keyframes baHeroDodge{ 0%{ transform:translate(0,0); opacity:1; } 30%{ transform:translate(-30%,-30%) rotate(-12deg); opacity:.5; } 70%{ transform:translate(-30%,-6%); opacity:.5; } 100%{ transform:translate(0,0); opacity:1; } }
+@keyframes baHeroHurt{ 0%{ transform:translateX(0); } 20%{ transform:translateX(-24%) rotate(-10deg); filter:brightness(2) sepia(1) saturate(6) hue-rotate(-30deg); } 100%{ transform:translateX(0); } }
+@keyframes baHeroDead{ to{ transform:translateY(25%) rotate(-80deg); opacity:.55; } }
+@keyframes baHeroWin{ to{ transform:translateY(-16%); } }
+@keyframes baRing{ 0%{ opacity:1; transform:scale(.4); } 100%{ opacity:0; transform:scale(2.4); } }
+.ba-tele{ position:absolute; z-index:1; left:26%; right:36%; bottom:12%; height:calc(10px*var(--u)); border-radius:6px; opacity:0; transform-origin:100% 50%; pointer-events:none; background:repeating-linear-gradient(90deg,rgba(255,70,40,.15) 0 9px,rgba(255,70,40,.9) 9px 18px); box-shadow:0 0 12px rgba(255,60,30,.8); }
+.ba-tele.on{ opacity:1; animation:baTele var(--wd,1s) linear forwards; }
+.ba-tele.now{ background:repeating-linear-gradient(90deg,rgba(255,255,255,.3) 0 9px,#fff 9px 18px); box-shadow:0 0 16px #fff,0 0 30px var(--acc); }
+@keyframes baTele{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+.ba-bw.b-strike{ animation:baStrike .5s cubic-bezier(.2,.8,.3,1); }
+.ba-bw.b-recoil{ animation:baRecoil .28s ease-out; }
+.ba-bw.b-die{ animation:baBossDie 1.1s ease-in .15s forwards; }
+@keyframes baStrike{ 0%{ transform:translateX(0); } 28%,45%{ transform:translateX(calc(var(--lunge)*-1)) scale(1.06); } 100%{ transform:translateX(0); } }
+@keyframes baRecoil{ 25%{ transform:translateX(12px); filter:brightness(2.4); } 100%{ transform:none; } }
+@keyframes baBossDie{ 0%{ filter:brightness(3); } 20%{ transform:translateX(6px); } 40%{ transform:translateX(-6px); } 100%{ opacity:0; transform:translateY(25%) scale(.7); filter:brightness(2); } }
+@media (prefers-reduced-motion:reduce){ .ba-hero, .ba-hero canvas, .ba-bw, .ba-tele{ animation:none !important; } }
+
+
+/* ---- correção: o boss ficava invisível (contêiner .ba-bw sem tamanho => imagem com largura 0) ---- */
+#bossOverlay .ba-bw{ flex:none; width:calc(var(--bw,150px) * var(--k)); height:calc(var(--bh,120px) * var(--k)); }
+#bossOverlay .ba-bw #bfBoss{ position:absolute; inset:auto auto 0 0; width:var(--bw,150px); height:var(--bh,120px); zoom:var(--k); display:block; }
+#bossOverlay #bfBoss img, #gbaShell .gba-screen #bossOverlay #bfBoss img{ max-width:none !important; max-height:none !important; left:50%; bottom:0; }
+#bossOverlay #bfBoss img.off{ visibility:hidden; }
+
+/* ---- chefes mais vivos: movimento contínuo + reações (animam a IMAGEM dentro de #bfBoss; o #bfBoss já usa transform) ---- */
+#bossOverlay #bfBoss img{ transform-origin:50% 100%; animation:baSway 2.3s ease-in-out infinite; }
+#bossOverlay #bfBoss[data-mo=float] img{ animation:baFloat 2.2s ease-in-out infinite; }
+#bossOverlay #bfBoss[data-mo=stomp] img{ animation:baStomp 1.8s ease-in-out infinite; }
+#bossOverlay #bfBoss.bf-enter img{ animation:none; }
+#bossOverlay #bfBoss.wind img{ animation:baRear .9s ease-out forwards; }
+#bossOverlay #bfBoss.flair img{ animation:baFlair .9s ease-out; }
+#bossOverlay #bfBoss.strike img{ animation:baStrike .55s cubic-bezier(.2,.8,.3,1); }
+#bossOverlay #bfBoss.hit img{ animation:baHit .38s ease-out; }
+#bossOverlay #bfBoss.hit.crit img{ animation:baHitCrit .55s ease-out; }
+#bossOverlay #bfBoss.gloat img{ animation:baGloat .5s ease-in-out infinite alternate; }
+#bossOverlay #bfBoss.dying img{ animation:baDie 1.2s ease-in both; }
+@keyframes baSway{ 0%,100%{ transform:rotate(-1.6deg) scale(1,1); } 50%{ transform:rotate(1.6deg) scale(1.02,.985); } }
+@keyframes baFloat{ 0%,100%{ transform:translate(-4%,2%) rotate(-2deg); } 25%{ transform:translate(2%,-5%) rotate(1deg); } 50%{ transform:translate(5%,-1%) rotate(2deg); } 75%{ transform:translate(-1%,-6%) rotate(-1deg); } }
+@keyframes baStomp{ 0%,100%{ transform:scale(1,1); } 40%{ transform:scale(1.035,.955); } 55%{ transform:scale(.99,1.03) translateY(-2%); } 70%{ transform:scale(1.02,.98); } }
+@keyframes baRear{ 0%{ transform:translateX(0) rotate(0); } 100%{ transform:translateX(9%) rotate(5deg) scale(.97,1.05); } }
+@keyframes baFlair{ 0%{ transform:scale(1); } 25%{ transform:translateY(-9%) scale(.96,1.08); } 45%{ transform:translateY(0) scale(1.08,.92); } 65%{ transform:scale(1.04,.98) rotate(-3deg); } 100%{ transform:scale(1); } }
+@keyframes baStrike{ 0%{ transform:translateX(9%) rotate(5deg); } 22%{ transform:translateX(-52%) rotate(-8deg) scale(1.14); } 55%{ transform:translateX(-46%) rotate(-5deg) scale(1.1); } 100%{ transform:translateX(0) rotate(0) scale(1); } }
+@keyframes baHit{ 0%{ transform:translateX(0); filter:brightness(2.6); } 20%{ transform:translateX(14%) rotate(6deg) scale(1.05,.94); filter:brightness(2); } 60%{ transform:translateX(5%) rotate(-2deg); filter:none; } 100%{ transform:translateX(0); filter:none; } }
+@keyframes baHitCrit{ 0%{ transform:translateX(0); filter:brightness(3) saturate(0); } 18%{ transform:translateX(24%) rotate(11deg) scale(1.08,.9); filter:brightness(2.2); } 50%{ transform:translateX(9%) rotate(-5deg); filter:none; } 75%{ transform:translateX(-3%) rotate(2deg); } 100%{ transform:translateX(0); filter:none; } }
+@keyframes baGloat{ from{ transform:translateY(0) scale(1); } to{ transform:translateY(-7%) scale(1.04,.98); } }
+@keyframes baDie{ 0%{ transform:translateX(0); filter:brightness(2.4); } 15%{ transform:translateX(-4%) rotate(-3deg); filter:brightness(1.6); } 30%{ transform:translateX(4%) rotate(3deg); } 45%{ transform:translateX(-3%) rotate(-2deg); } 100%{ transform:translateY(14%) rotate(14deg) scale(.55,.2); opacity:0; filter:brightness(2.5); } }
+@media (prefers-reduced-motion:reduce){ #bossOverlay #bfBoss img{ animation:none !important; } }
+
+/* Projétil de corte: pixel-art estilizado; personagem não avança */
+.ba-slash{ position:absolute; z-index:4; left:23%; bottom:34%; width:0; height:0; opacity:0; pointer-events:none; }
+.ba-slash.fly{ opacity:1; animation:baSlashFly .42s steps(8,end) forwards; }
+.ba-slash::before{ content:""; position:absolute; width:clamp(40px,13vw,84px); height:clamp(20px,7vw,42px); left:0; top:0; background:linear-gradient(145deg,#fff 0 15%,#d9faff 16% 35%,var(--acc) 36% 64%,transparent 65%); clip-path:polygon(0 70%,18% 45%,40% 20%,68% 0,100% 0,78% 28%,52% 52%,26% 76%,8% 100%); filter:drop-shadow(2px 2px 0 #142); transform:rotate(-12deg); }
+.ba-slash::after{ content:""; position:absolute; width:clamp(28px,10vw,65px); height:3px; left:-8px; top:18px; background:#fff; box-shadow:0 0 8px var(--acc),0 0 14px var(--acc); transform:rotate(-24deg); }
+.ba-slash.critical::before{ background:linear-gradient(145deg,#fff 0 20%,#ffe7a0 21% 45%,#ffd34a 46% 70%,transparent 71%); filter:drop-shadow(0 0 4px #ffd34a); }
+@keyframes baSlashFly{ 0%{ transform:translate(0,0) scale(.65); opacity:0; } 12%{opacity:1;} 75%{transform:translate(45vw,-9vh) scale(1.25);opacity:1;} 100%{transform:translate(62vw,-13vh) scale(.8);opacity:0;} }
+
+/* Entrada corrigida: animar o wrapper dimensionado, mantendo o sprite ancorado pelos pés. */
+#bossOverlay .ba-bw.bf-enter{ animation:baLanding 1.45s cubic-bezier(.16,.82,.22,1) both; transform-origin:50% 100%; }
+#bossOverlay .ba-bw.bf-enter #bfBoss img{ animation:none !important; }
+@keyframes baLanding{ 0%{opacity:0;transform:translateY(-125%) scale(.92)} 62%{opacity:1;transform:translateY(2%) scale(1)} 76%{transform:translateY(-5%) scale(1.04,.94)} 88%{transform:translateY(1%) scale(.98,1.03)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+
+/* REFINEMENT: HUD compacto e arena sem brilho/gradientes exagerados */
+#bossOverlay .ba-hud{padding:5px 7px 7px;background:rgba(12,18,22,.88);border-bottom:2px solid #222;}
+#bossOverlay .ba-plate{gap:5px;margin-bottom:3px;}
+#bossOverlay .ba-lv{min-width:26px;padding:2px 4px;border:1px solid #222;border-radius:2px;box-shadow:none;background:#e6d28a;color:#242018;font-size:10px;}
+#bossOverlay .ba-name{font-size:14px;letter-spacing:.5px;text-shadow:1px 1px #111;color:#f4f0df;}
+#bossOverlay .ba-epi{font-size:8px;letter-spacing:1px;margin-top:2px;color:#c8b982;text-shadow:none;}
+#bossOverlay .ba-hud .bf-bar,#bossOverlay .ba-me .bf-bar{border:1px solid #171717;border-radius:2px;box-shadow:none;background:#272727;}
+#bossOverlay .ba-hud .bf-bar{height:10px!important;}
+#bossOverlay .ba-hud .bf-fill,#bossOverlay .ba-me .bf-fill{border-radius:0;background:var(--hp1);}
+#bossOverlay .ba-hud .bf-fill{background:var(--hp1);}
+#bossOverlay .ba-me .bf-bar{height:9px!important;}
+#bossOverlay .ba-hud .bf-bar::after,#bossOverlay .ba-me .bf-bar::after{display:none;}
+#bossOverlay .ba-num{font-size:8px;text-shadow:1px 1px #111;}
+#bossOverlay .ba-ghost{background:#d6b96b;opacity:.45;}
+#bossOverlay .ba-heart{font-size:14px;filter:none;animation:none;}
+#bossOverlay .ba-me{gap:4px;left:6px;bottom:6px;width:58%;}
+#bossOverlay .ba-ground{height:23%;background:var(--g2);border-top:2px solid var(--g1);}
+#bossOverlay .ba-ground::after{display:none;}
+#bossOverlay .ba-shadow{background:radial-gradient(ellipse,rgba(0,0,0,.42),transparent 72%);}
